@@ -33,16 +33,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CoC Bot.Core">
-      <HintPath>..\..\..\sources\android\RaccoonBot_1.20.7.2631\RaccoonBot v1.20.7.2631\CoC Bot.Core.dll</HintPath>
+      <HintPath>F:\RaccoonBot v1.20.7.2631\CoC Bot.Core.dll</HintPath>
     </Reference>
     <Reference Include="CustomAlgorithmSettings">
-      <HintPath>..\..\..\sources\android\RaccoonBot_1.20.7.2631\RaccoonBot v1.20.7.2631\CustomAlgorithmSettings.dll</HintPath>
+      <HintPath>F:\RaccoonBot v1.20.7.2631\CustomAlgorithmSettings.dll</HintPath>
     </Reference>
     <Reference Include="Raccoon Bot">
-      <HintPath>..\..\..\sources\android\RaccoonBot_1.20.7.2631\RaccoonBot v1.20.7.2631\Raccoon Bot.exe</HintPath>
+      <HintPath>F:\RaccoonBot v1.20.7.2631\Raccoon Bot.exe</HintPath>
     </Reference>
     <Reference Include="Shared">
-      <HintPath>..\..\..\sources\android\RaccoonBot_1.20.7.2631\RaccoonBot v1.20.7.2631\Shared.dll</HintPath>
+      <HintPath>F:\RaccoonBot v1.20.7.2631\Shared.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

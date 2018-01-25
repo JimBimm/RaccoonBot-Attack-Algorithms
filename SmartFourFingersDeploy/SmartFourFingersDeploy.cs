@@ -231,13 +231,6 @@ namespace SmartFourFingersDeploy
 
 
             var deployHeroesAt = GetCurrentSetting("Deploy Heroes At");
-            var deployCC = GetCurrentSetting("CC Deployment");
-            if (deployCC == 0 && cc?.Count > 0)
-            {
-                Log.Info($"{AttackName} Deploy Clan Castle troops first");
-                foreach (var t in Deploy.AlongLine(cc, line.Item1, line.Item2, 1, 1, 0, waveDelay))
-                    yield return t;
-            }
 
             var target = SmartFourFingersHelper.GetHeroesTarget(deployHeroesAt);
 
@@ -278,6 +271,15 @@ namespace SmartFourFingersDeploy
             var targetsCount = TargetsAtLine[index];
 
             Log.Info($"{AttackName} {Version} starts");
+
+            var deployCC = GetCurrentSetting("CC Deployment");
+            if (deployCC == 0 && cc?.Count > 0)
+            {
+                Log.Info($"{AttackName} Deploy Clan Castle troops first");
+                foreach (var t in Deploy.AlongLine(cc, line.Item1, line.Item2, 1, 1, 0, waveDelay))
+                    yield return t;
+            }
+
             // Start troops deployment on four sides.
             for (var i = 4; i >= 1; i--)
             {
