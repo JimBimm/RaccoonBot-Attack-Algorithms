@@ -42,7 +42,7 @@ namespace SmartFourFingersDeploy
         {
             return SettingsController.Instance.GetSetting(AttackName, settingName, Opponent.IsDead());
         }
-        
+
         /// <summary>
         /// Returns a list of all current Algorithm Setting Values.
         /// </summary>
@@ -77,6 +77,11 @@ namespace SmartFourFingersDeploy
             debugMode.PossibleValues.Add(new SettingOption("Off", 0));
             debugMode.PossibleValues.Add(new SettingOption("On", 1));
             settings.DefineSetting(debugMode);
+
+            var ccFirst = new AlgorithmSetting("CC Deployment", "Deployment of CC", 0, SettingType.Global);
+            ccFirst.PossibleValues.Add(new SettingOption("Deploy at Start", 0));
+            ccFirst.PossibleValues.Add(new SettingOption("Deploy at End", 1));
+            settings.DefineSetting(ccFirst);
 
             var setCollMines = new AlgorithmSetting("Set Exposed Collecotors & Mines", "turn on and off searching for outside elixir collectors and gold mines.", 1, SettingType.ActiveAndDead);
             setCollMines.PossibleValues.Add(new SettingOption("Off", 0));
@@ -223,15 +228,21 @@ namespace SmartFourFingersDeploy
                 topLeftLine
             };
 
-            
+
 
             var deployHeroesAt = GetCurrentSetting("Deploy Heroes At");
+            var deployCC = GetCurrentSetting("CC Deployment");
+            if (deployCC == 0 && cc?.Count > 0)
+            {
+                Log.Info($"{AttackName} Deploy Clan Castle troops first");
+                foreach (var t in Deploy.AlongLine(cc, line.Item1, line.Item2, 1, 1, 0, waveDelay))
+                    yield return t;
+            }
 
-            
             var target = SmartFourFingersHelper.GetHeroesTarget(deployHeroesAt);
 
             // Search for target if not found for 3 more times
-            if(target.X == 0f && target.Y == 0f)
+            if (target.X == 0f && target.Y == 0f)
             {
                 for (var i = 1; i <= 3; i++)
                 {
@@ -278,14 +289,14 @@ namespace SmartFourFingersDeploy
                         var count = deploymentMode == 0 ? unit.Count / i : (TotalTargetsCount > 0 ? unit.Count * targetsCount / TotalTargetsCount : 0);
                         var housing = unit.UnitData.HousingSpace;
                         var fingers = housing < 4 ? (count < 8 ? count : 4) : 1;
-                        
+
                         Log.Info($"{AttackName} Deploy {count}x {unit.PrettyName}");
                         foreach (var t in Deploy.AlongLine(unit, line.Item1, line.Item2, count, fingers, 0, waveDelay))
                             yield return t;
                     }
                 }
 
-                if (i != 1) 
+                if (i != 1)
                 {
                     line = AttackLines.NextOf(AttackLines[index]);
                     index = AttackLines.FindIndex(u => u.Item1.X == line.Item1.X && u.Item1.Y == line.Item1.Y);
@@ -295,7 +306,7 @@ namespace SmartFourFingersDeploy
                 }
             }
 
-            if (cc?.Count > 0)
+            if (deployCC == 1 && cc?.Count > 0)
             {
                 Log.Info($"{AttackName} Deploy Clan Castle troops");
                 foreach (var t in Deploy.AlongLine(cc, line.Item1, line.Item2, 1, 1, 0, waveDelay))
@@ -355,7 +366,7 @@ namespace SmartFourFingersDeploy
         {
             for (var i = 0; i < TargetsAtLine.Count; i++)
             {
-                if(TargetsAtLine[i] < 2)
+                if (TargetsAtLine[i] < 2)
                 {
                     TotalTargetsCount += 2 - TargetsAtLine[i];
                     TargetsAtLine[i] = 2;
@@ -373,7 +384,7 @@ namespace SmartFourFingersDeploy
             {
                 Log.Info("[Force Zap] Waiting for Lightning drills to be finished");
                 Log.Debug($"[Force Zap] Start time is {startTime.Hour}:{startTime.Minute}:{startTime.Second}");
-                
+
                 while (isZapped == false)
                 {
                     var timeDiff = DateTime.Now.Subtract(startTime);
@@ -397,7 +408,7 @@ namespace SmartFourFingersDeploy
         /// <returns></returns>
         public override IEnumerable<int> ZapDarkElixirDrills()
         {
-            if(!isZapped)
+            if (!isZapped)
             {
                 if (GetCurrentSetting("Smart Zap Drills") == 1)
                 {
@@ -416,18 +427,18 @@ namespace SmartFourFingersDeploy
                         yield return (t);
                 }
             }
-            
+
             isZapped = true;
         }
 
         public override double ShouldAccept()
-        {            
+        {
             if (!Opponent.MeetsRequirements(BaseRequirements.All))
                 return 0;
             if (GetCurrentSetting("Set Exposed Collecotors & Mines") == 1)
             {
                 IsTargetsCalculated = true;
-                if (!SmartFourFingersHelper.IsBaseMinCollectorsAndMinesOutside(GetCurrentSetting("Acceptable Target Range"), GetCurrentSetting("Minimum Exposed Colloctors"), GetCurrentSetting("Minimum Exposed Mines"), AttackName, GetCurrentSetting("Debug Mode"))) 
+                if (!SmartFourFingersHelper.IsBaseMinCollectorsAndMinesOutside(GetCurrentSetting("Acceptable Target Range"), GetCurrentSetting("Minimum Exposed Colloctors"), GetCurrentSetting("Minimum Exposed Mines"), AttackName, GetCurrentSetting("Debug Mode")))
                     return 0;
             }
             return 1;
